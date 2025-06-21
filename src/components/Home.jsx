@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import profile from "../assets/profile.jpg";
+import profile from "../assets/Profile.jpg";
 import Bio from "./Bio";
 
 function Home() {
