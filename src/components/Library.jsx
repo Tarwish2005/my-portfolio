@@ -127,12 +127,29 @@ function Library() {
     setShowUploadForm(false);
   };
 
-  const handleFormSubmit = () => {
+  const handleFormSubmit = async () => {
     if (!formData.title || !formData.author || !formData.description) {
       alert("Please fill in all required fields!");
       return;
     }
-    let pdfUrl = formData.pdf ? URL.createObjectURL(formData.pdf) : formData.link;
+    let pdfUrl = formData.link;
+    if (formData.pdf) {
+      // Upload PDF to backend
+      const data = new FormData();
+      data.append('pdf', formData.pdf);
+      try {
+        const response = await fetch('http://localhost:5000/upload', {
+          method: 'POST',
+          body: data
+        });
+        if (!response.ok) throw new Error('Upload failed');
+        const result = await response.json();
+        pdfUrl = result.url.startsWith('/') ? `http://localhost:5000${result.url}` : result.url;
+      } catch (err) {
+        alert('PDF upload failed!');
+        return;
+      }
+    }
     const newItem = {
       ...formData,
       id: items.length + 1,
