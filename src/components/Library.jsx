@@ -1,100 +1,7 @@
-import React, { useState } from "react";
-
-const initialItems = [
-  {
-    id: 1,
-    title: "Fundamentals of Management Accounting",
-    author: "Prof. Ajay Kumar Raja",
-    type: "Book",
-    year: "2023",
-    description: "Comprehensive guide covering principles and practices of management accounting for commerce students.",
-    link: "#",
-  },
-  {
-    id: 2,
-    title: "Financial Management in Modern Business",
-    author: "Prof. Ajay Kumar Raja",
-    type: "Book",
-    year: "2022",
-    description: "Essential concepts of financial management with practical applications and case studies.",
-    link: "#",
-  },
-  {
-    id: 3,
-    title: "Commerce Education in Digital Era",
-    author: "Prof. Ajay Kumar Raja",
-    type: "Book",
-    year: "2021",
-    description: "Exploring the transformation of commerce education through digital technologies.",
-    link: "#",
-  },
-  {
-    id: 4,
-    title: "Strategic Approach to Business Studies",
-    author: "Prof. Ajay Kumar Raja",
-    type: "Book",
-    year: "2020",
-    description: "Strategic frameworks and methodologies for understanding modern business dynamics.",
-    link: "#",
-  },
-  {
-    id: 5,
-    title: "Impact of Digital Transformation on Commerce Education",
-    author: "Prof. Ajay Kumar Raja, Dr. [Co-author]",
-    type: "Research Paper",
-    year: "2023",
-    description: "Published in International Journal of Commerce Education - examining how digital tools reshape learning.",
-    link: "#",
-  },
-  {
-    id: 6,
-    title: "Student Performance Analysis in Management Accounting",
-    author: "Prof. Ajay Kumar Raja",
-    type: "Research Paper",
-    year: "2023",
-    description: "Published in National Journal of Management Studies - analyzing factors affecting student performance.",
-    link: "#",
-  },
-  {
-    id: 7,
-    title: "Innovative Teaching Methods in Commerce Education",
-    author: "Prof. Ajay Kumar Raja, Dr. [Co-author]",
-    type: "Research Paper",
-    year: "2022",
-    description: "Published in Journal of Educational Innovation - exploring modern pedagogical approaches.",
-    link: "#",
-  },
-  {
-    id: 8,
-    title: "Financial Literacy Among Undergraduate Students",
-    author: "Prof. Ajay Kumar Raja",
-    type: "Research Paper",
-    year: "2022",
-    description: "Published in Indian Journal of Finance - studying financial awareness levels among students.",
-    link: "#",
-  },
-  {
-    id: 9,
-    title: "Role of NSS in Character Building of Students",
-    author: "Prof. Ajay Kumar Raja",
-    type: "Research Paper",
-    year: "2021",
-    description: "Published in Journal of Social Service - examining NSS impact on student development.",
-    link: "#",
-  },
-  {
-    id: 10,
-    title: "Challenges in Rural Commerce Education",
-    author: "Prof. Ajay Kumar Raja, Dr. [Co-author]",
-    type: "Research Paper",
-    year: "2021",
-    description: "Published in Rural Education Quarterly - addressing educational challenges in rural areas.",
-    link: "#",
-  },
-];
+import React, { useState, useEffect } from "react";
 
 function Library() {
-  const [items, setItems] = useState(initialItems);
+  const [items, setItems] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminPassword, setAdminPassword] = useState("");
   const [showAdminLogin, setShowAdminLogin] = useState(false);
@@ -106,14 +13,29 @@ function Library() {
     year: new Date().getFullYear().toString(),
     description: "",
     link: "",
-    pdf: null // Add pdf field
+    pdf: null
   });
+
+  // Fetch publications from backend
+  const fetchItems = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/publications");
+      const data = await res.json();
+      setItems(data);
+    } catch (err) {
+      setItems([]);
+    }
+  };
+
+  useEffect(() => {
+    fetchItems();
+  }, []);
 
   const books = items.filter(item => item.type === "Book");
   const papers = items.filter(item => item.type === "Research Paper");
 
   const handleAdminLogin = () => {
-    if (adminPassword === "Ajay123") { // Simple password - in real app, use proper authentication
+    if (adminPassword === "Ajay123") {
       setIsAdmin(true);
       setShowAdminLogin(false);
       setAdminPassword("");
@@ -132,47 +54,49 @@ function Library() {
       alert("Please fill in all required fields!");
       return;
     }
-    let pdfUrl = formData.link;
+    const data = new FormData();
+    data.append("title", formData.title);
+    data.append("author", formData.author);
+    data.append("type", formData.type);
+    data.append("year", formData.year);
+    data.append("description", formData.description);
+    data.append("link", formData.link);
     if (formData.pdf) {
-      // Upload PDF to backend
-      const data = new FormData();
-      data.append('pdf', formData.pdf);
-      try {
-        const response = await fetch('http://localhost:5000/upload', {
-          method: 'POST',
-          body: data
-        });
-        if (!response.ok) throw new Error('Upload failed');
-        const result = await response.json();
-        pdfUrl = result.url.startsWith('/') ? `http://localhost:5000${result.url}` : result.url;
-      } catch (err) {
-        alert('PDF upload failed!');
-        return;
-      }
+      data.append("pdf", formData.pdf);
     }
-    const newItem = {
-      ...formData,
-      id: items.length + 1,
-      link: pdfUrl,
-      pdf: undefined // Don't store the file object in state
-    };
-    setItems([newItem, ...items]);
-    setFormData({
-      title: "",
-      author: "Prof. Ajay Kumar Raja",
-      type: "Book",
-      year: new Date().getFullYear().toString(),
-      description: "",
-      link: "",
-      pdf: null
-    });
-    setShowUploadForm(false);
-    alert("Publication added successfully!");
+    try {
+      const response = await fetch("http://localhost:5000/publications", {
+        method: "POST",
+        body: data
+      });
+      if (!response.ok) throw new Error("Upload failed");
+      await response.json();
+      setFormData({
+        title: "",
+        author: "Prof. Ajay Kumar Raja",
+        type: "Book",
+        year: new Date().getFullYear().toString(),
+        description: "",
+        link: "",
+        pdf: null
+      });
+      setShowUploadForm(false);
+      alert("Publication added successfully!");
+      fetchItems();
+    } catch (err) {
+      alert("Publication upload failed!");
+    }
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this publication?")) {
-      setItems(items.filter(item => item.id !== id));
+      try {
+        const response = await fetch(`http://localhost:5000/publications/${id}`, { method: 'DELETE' });
+        if (!response.ok) throw new Error('Delete failed');
+        fetchItems();
+      } catch (err) {
+        alert("Delete failed!");
+      }
     }
   };
 
@@ -624,24 +548,29 @@ function Library() {
                   </p>
                   
                   {item.link && item.link !== "#" && (
-                    <a href={item.link} target="_blank" rel="noopener noreferrer" style={{
-                      display: "inline-block",
-                      color: "#fff",
-                      backgroundColor: item.type === "Book" ? "#003366" : "#28a745",
-                      padding: "10px 20px",
-                      borderRadius: "6px",
-                      textDecoration: "none",
-                      fontSize: "14px",
-                      fontWeight: "500",
-                      transition: "background-color 0.3s ease"
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = item.type === "Book" ? "#004080" : "#218838";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.backgroundColor = item.type === "Book" ? "#003366" : "#28a745";
-                    }}>
-                      {item.link.endsWith('.pdf') || item.link.startsWith('blob:') ? (item.type === "Book" ? "📖 View PDF" : "📄 Read PDF") : (item.type === "Book" ? "📖 View Book Details" : "📄 Read Paper")}
+                    <a
+                      href={item.link.startsWith('/uploads/') ? `http://localhost:5000${item.link}` : item.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: "inline-block",
+                        color: "#fff",
+                        backgroundColor: item.type === "Book" ? "#003366" : "#28a745",
+                        padding: "10px 20px",
+                        borderRadius: "6px",
+                        textDecoration: "none",
+                        fontSize: "14px",
+                        fontWeight: "500",
+                        transition: "background-color 0.3s ease"
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = item.type === "Book" ? "#004080" : "#218838";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = item.type === "Book" ? "#003366" : "#28a745";
+                      }}
+                    >
+                      {item.link.endsWith('.pdf') || item.link.startsWith('/uploads/') ? (item.type === "Book" ? "📖 View PDF" : "📄 Read PDF") : (item.type === "Book" ? "📖 View Book Details" : "📄 Read Paper")}
                     </a>
                   )}
                 </div>

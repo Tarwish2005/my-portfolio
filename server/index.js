@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const PORT = 5000;
@@ -36,6 +37,53 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
 });
 
+const PUBLICATIONS_FILE = path.join(__dirname, 'publications.json');
+
+// Helper to read publications
+function readPublications() {
+  try {
+    const data = fs.readFileSync(PUBLICATIONS_FILE, 'utf8');
+    return JSON.parse(data);
+  } catch (err) {
+    return [];
+  }
+}
+
+// Helper to write publications
+function writePublications(publications) {
+  fs.writeFileSync(PUBLICATIONS_FILE, JSON.stringify(publications, null, 2));
+}
+
+app.use(express.json());
+
+// Get all publications
+app.get('/publications', (req, res) => {
+  const publications = readPublications();
+  res.json(publications);
+});
+
+// Add a new publication (with or without PDF)
+app.post('/publications', upload.single('pdf'), (req, res) => {
+  let publications = readPublications();
+  const { title, author, type, year, description, link } = req.body;
+  let pdfUrl = link;
+  if (req.file) {
+    pdfUrl = `/uploads/${req.file.filename}`;
+  }
+  const newItem = {
+    id: publications.length > 0 ? publications[0].id + 1 : 1,
+    title,
+    author,
+    type,
+    year,
+    description,
+    link: pdfUrl
+  };
+  publications = [newItem, ...publications];
+  writePublications(publications);
+  res.json(newItem);
+});
+
 // PDF upload endpoint
 app.post('/upload', upload.single('pdf'), (req, res) => {
   if (!req.file) {
@@ -44,6 +92,26 @@ app.post('/upload', upload.single('pdf'), (req, res) => {
   // Return the URL to access the uploaded PDF
   const fileUrl = `/uploads/${req.file.filename}`;
   res.json({ url: fileUrl });
+});
+
+// Delete a publication and its PDF
+app.delete('/publications/:id', (req, res) => {
+  let publications = readPublications();
+  const id = parseInt(req.params.id, 10);
+  const pubIndex = publications.findIndex(pub => pub.id === id);
+  if (pubIndex === -1) {
+    return res.status(404).json({ error: 'Publication not found' });
+  }
+  const [removed] = publications.splice(pubIndex, 1);
+  writePublications(publications);
+  // Remove PDF file if it exists and is in uploads
+  if (removed.link && removed.link.startsWith('/uploads/')) {
+    const filePath = path.join(__dirname, removed.link);
+    fs.unlink(filePath, err => {
+      // Ignore error if file doesn't exist
+    });
+  }
+  res.json({ success: true });
 });
 
 app.listen(PORT, () => {
