@@ -105,7 +105,8 @@ function Library() {
     type: "Book",
     year: new Date().getFullYear().toString(),
     description: "",
-    link: ""
+    link: "",
+    pdf: null // Add pdf field
   });
 
   const books = items.filter(item => item.type === "Book");
@@ -131,9 +132,12 @@ function Library() {
       alert("Please fill in all required fields!");
       return;
     }
+    let pdfUrl = formData.pdf ? URL.createObjectURL(formData.pdf) : formData.link;
     const newItem = {
       ...formData,
       id: items.length + 1,
+      link: pdfUrl,
+      pdf: undefined // Don't store the file object in state
     };
     setItems([newItem, ...items]);
     setFormData({
@@ -142,7 +146,8 @@ function Library() {
       type: "Book",
       year: new Date().getFullYear().toString(),
       description: "",
-      link: ""
+      link: "",
+      pdf: null
     });
     setShowUploadForm(false);
     alert("Publication added successfully!");
@@ -405,7 +410,7 @@ function Library() {
                 <input
                   type="url"
                   value={formData.link}
-                  onChange={(e) => setFormData({...formData, link: e.target.value})}
+                  onChange={(e) => setFormData({...formData, link: e.target.value, pdf: null})}
                   placeholder="https://example.com"
                   style={{
                     width: "100%",
@@ -414,7 +419,35 @@ function Library() {
                     borderRadius: "5px",
                     fontSize: "14px"
                   }}
+                  disabled={formData.pdf !== null}
                 />
+              </div>
+              <div style={{ marginBottom: "20px" }}>
+                <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>Upload PDF (Book or Research Paper)</label>
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  onChange={e => {
+                    const file = e.target.files[0];
+                    setFormData({
+                      ...formData,
+                      pdf: file || null,
+                      link: file ? "" : formData.link
+                    });
+                  }}
+                  style={{
+                    width: "100%",
+                    padding: "10px",
+                    border: "1px solid #ddd",
+                    borderRadius: "5px",
+                    fontSize: "14px"
+                  }}
+                />
+                {formData.pdf && (
+                  <div style={{ marginTop: "5px", color: "#28a745" }}>
+                    Selected: {formData.pdf.name}
+                  </div>
+                )}
               </div>
 
               <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
@@ -577,7 +610,7 @@ function Library() {
                     <a href={item.link} target="_blank" rel="noopener noreferrer" style={{
                       display: "inline-block",
                       color: "#fff",
-                      backgroundColor: "#003366",
+                      backgroundColor: item.type === "Book" ? "#003366" : "#28a745",
                       padding: "10px 20px",
                       borderRadius: "6px",
                       textDecoration: "none",
@@ -586,12 +619,12 @@ function Library() {
                       transition: "background-color 0.3s ease"
                     }}
                     onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = "#004080";
+                      e.target.style.backgroundColor = item.type === "Book" ? "#004080" : "#218838";
                     }}
                     onMouseLeave={(e) => {
-                      e.target.style.backgroundColor = "#003366";
+                      e.target.style.backgroundColor = item.type === "Book" ? "#003366" : "#28a745";
                     }}>
-                      📖 View Book Details
+                      {item.link.endsWith('.pdf') || item.link.startsWith('blob:') ? (item.type === "Book" ? "📖 View PDF" : "📄 Read PDF") : (item.type === "Book" ? "📖 View Book Details" : "📄 Read Paper")}
                     </a>
                   )}
                 </div>
