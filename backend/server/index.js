@@ -7,8 +7,24 @@ const fs = require('fs');
 const app = express();
 const PORT = 5000;
 
-// Enable CORS for all origins (for development)
-app.use(cors());
+// Enable CORS for specific origins
+const allowedOrigins = [
+  'http://localhost:3000', // React dev server
+  'http://localhost:5173', // Vite dev server
+  // 'https://your-deployed-frontend.com', // <-- Replace with your deployed frontend URL
+];
+app.use(cors({
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+}));
 
 // Serve uploaded files statically
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
