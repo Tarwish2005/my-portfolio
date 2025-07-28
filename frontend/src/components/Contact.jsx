@@ -11,13 +11,13 @@ function Contact() {
           <div className="profile-image-container">
             <img
               src={profileImage}
-              alt="Prof. Ajay Kumar Raja"
+              alt="Mr. Ajay Kumar Raja"
               className="contact-image"
             />
           </div>
           
           <div className="hero-text">
-            <h1 className="hero-title">Prof. Ajay Kumar Raja</h1>
+            <h1 className="hero-title">Mr. Ajay Kumar Raja</h1>
             <div className="title-underline"></div>
             <h2 className="hero-subtitle">Head, Department of Commerce</h2>
             
@@ -121,3 +121,4 @@ function Contact() {
 }
 
 export default Contact;
+

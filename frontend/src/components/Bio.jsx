@@ -42,11 +42,11 @@ function Bio() {
             textAlign: "center",
           }}
         >
-          📚 Research Publications & Books by <span style={{ color: "#ffffff" }}>Prof. Ajay Kumar Raja</span>
+          📚 Research Publications & Books by <span style={{ color: "#ffffff" }}>Mr. Ajay Kumar Raja</span>
         </h1>
 
         <p style={{ fontSize: "17px", lineHeight: "1.9", textAlign: "justify" }}>
-          Prof. <strong>Ajay Kumar Raja</strong>, Head of the Department of Commerce at
+          Mr. <strong>Ajay Kumar Raja</strong>, Head of the Department of Commerce at
           Government Mahaprabhu Vallabhacharya PG College, Mahasamund, has made significant contributions to 
           academic literature with <strong>4 published books</strong> and numerous research papers published in 
           <em>prestigious national and international journals</em>.
@@ -191,3 +191,4 @@ function Bio() {
 }
 
 export default Bio;
+

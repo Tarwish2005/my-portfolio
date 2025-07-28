@@ -5,25 +5,31 @@ import Bio from "./Bio";
 function Home() {
   const [titleText, setTitleText] = useState("");
   const [isVisible, setIsVisible] = useState(false);
-  const fullTitle = "Oceanography Research Assistant";
+  const fullTitle = " Head of the Department of Commerce";
 
   useEffect(() => {
     // Trigger fade-in animation
     setIsVisible(true);
     
     // Typing animation with slight delay
-    const startTyping = setTimeout(() => {
-      let index = 0;
-      const typing = setInterval(() => {
-        setTitleText((prev) => prev + fullTitle[index]);
-        index++;
-        if (index === fullTitle.length) clearInterval(typing);
-      }, 80);
-      return () => clearInterval(typing);
-    }, 800);
+    let typing;
+const startTyping = setTimeout(() => {
+  let index = 0;
+  typing = setInterval(() => {
+    if (index < fullTitle.length) {
+      setTitleText((prev) => prev + fullTitle[index]);
+      index++;
+    } else {
+      clearInterval(typing);
+    }
+  }, 80);
+}, 800);
 
-    return () => clearTimeout(startTyping);
-  }, []);
+return () => {
+  clearTimeout(startTyping);
+  clearInterval(typing); // ✅ cleanup both on unmount
+};
+}, []);
 
   return (
     <>
@@ -208,10 +214,10 @@ function Home() {
               }}
             >
               {[
-                "Blue Cove University, Department of Earth & Environmental Sciences",
-                "500 Terry Francine Street, San Francisco, CA 94158",
+                "Mahaprabhu Vallabhacharya PG College, Mahasamund",
+                "Mahasamund Chhattisgarh",
                 "Phone: 123-456-7890",
-                "Email: info@mysite.com"
+                "Email: ajayraja@email.com"
               ].map((text, index) => (
                 <p
                   key={index}
@@ -310,4 +316,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default Home;  

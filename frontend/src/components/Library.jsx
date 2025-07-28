@@ -1,35 +1,143 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 function Library() {
-  const [items, setItems] = useState([]);
+  // Helper function to convert Google Drive links to embeddable format
+  const convertGoogleDriveLink = (link) => {
+    if (link && link.includes('drive.google.com')) {
+      const fileId = link.match(/\/d\/([a-zA-Z0-9-_]+)/);
+      if (fileId) {
+        return `https://drive.google.com/file/d/${fileId[1]}/preview`;
+      }
+    }
+    return link;
+  };
+
+  // Static data for publications - you can add your PDFs here
+  const [items] = useState([
+    // Research Papers
+    {
+      id: 1,
+      title: "Ai in business",
+      author: "Mr. Ajay Kumar Raja",
+      type: "Research Paper",
+      year: "2024",
+      description: "This research explores the impact of digital transformation on modern commerce education, examining how technology integration enhances learning outcomes and student engagement.",
+      link: "https://drive.google.com/file/d/1BsSvdkWptdQvikJuYiZTisU3Hnx47LCE/view?usp=sharing"
+    },
+    {
+      id: 2,
+      title: "Blockchain in Commerce",
+      author: "Mr. Ajay Kumar Raja",
+      type: "Research Paper",
+      year: "2024",
+      description: "An in-depth analysis of blockchain technology and its transformative impact on commerce, including case studies and future trends.",
+      link: "https://drive.google.com/file/d/1xS7e-bCjkauPksnt4JjHeSlSnbcgTVlC/view?usp=sharing"
+    },
+    {
+      id: 3,
+      title: "Celebrity Endorsement",
+      author: "Mr. Ajay Kumar Raja",
+      type: "Research Paper",
+      year: "2023",
+      description: "A comprehensive study analyzing current e-commerce trends and their influence on consumer behavior patterns in the digital marketplace.",
+      link: "https://drive.google.com/file/d/1NVmkC6LPjqKdPssPVFGyV-02W10thQiJ/view?usp=sharing"
+    },
+    {
+      id: 4,
+      title: "Child labour",
+      author: "Mr. Ajay Kumar Raja",
+      type: "Research Paper",
+      year: "2023",
+      description: "Research focusing on the revolutionary impact of financial technology on traditional banking systems and emerging innovation patterns.",
+      link: "https://drive.google.com/file/d/1ZBEt6TmJySpUfYB_bQo_9OIE9NCweIgN/view?usp=sharing"
+    },
+    
+    // Books
+    {
+      id: 5,
+      title: "Customer Expectancy",
+      author: "Mr. Ajay Kumar Raja",
+      type: "Research Paper",
+      year: "2024",
+      description: "A comprehensive textbook covering the fundamental principles of modern commerce, including digital business models, international trade, and contemporary market dynamics.",
+      link: "https://drive.google.com/file/d/17uQXNYKvM5tld1_l2eCre4zjlxsP0Qg9/view?usp=sharing"
+    },
+    {
+      id: 6,
+      title: "Detection in social network",
+      author: "Mr. Ajay Kumar Raja",
+      type: "Research Paper",
+      year: "2023",
+      description: "An essential guide to strategic management practices adapted for the digital age, covering digital transformation strategies and competitive advantage.",
+      link: "https://drive.google.com/file/d/1pe4VWsjGrC2--nY9raozckNF72qpUosV/view?usp=sharing"
+    },
+    {
+      id: 7,
+      title: "Forensic Accounting",
+      author: "Mr. Ajay Kumar Raja",
+      type: "Research Paper",
+      year: "2023",
+      description: "A detailed exploration of forensic accounting techniques and their application in detecting financial fraud.",
+      link: "https://drive.google.com/file/d/1i8t19619PgvcDQPN3XK0j_1T8poYWDjW/view?usp=sharing"
+    },
+    {
+      id: 8,
+      title: "GST",
+      author: "Mr. Ajay Kumar Raja",
+      type: "Research Paper",
+      year: "2022",
+      description: "Comprehensive coverage of international business operations, global market entry strategies, and cross-cultural management practices.",
+      link: "https://drive.google.com/file/d/1WpdpUTPkUHSZVqb_87zEKW0tURxv7LTZ/view?usp=sharing"
+    },
+    {
+      id: 9,
+      title: "Human Communication",
+      author: "Mr. Ajay Kumar Raja",
+      type: "Research",
+      year: "2022",
+      description: "A practical guide to entrepreneurship covering innovation management, startup strategies, and business model development in modern markets.",
+      link: "/pdfs/books/entrepreneurship-innovation.pdf"
+    },
+
+    // Additional Research Papers
+    {
+      id: 10,
+      title: "The impact of AI",
+      author: "Mr. Ajay Kumar Raja",
+      type: "Research Paper",
+      year: "2024",
+      description: "Investigation into the role of artificial intelligence in enhancing business decision-making processes and operational efficiency.",
+      link: "https://drive.google.com/file/d/1Ln3r2EB763srv5g_hJjU1rE1AEcHbQcj/view?usp=sharing"
+    },
+    {
+      id: 11,
+      title: "The importance of advertising",
+      author: "Mr. Ajay Kumar Raja",
+      type: "Research Paper",
+      year: "2023",
+      description: "Analysis of supply chain adaptations and innovations developed in response to global pandemic challenges and their long-term implications.",
+      link: "https://drive.google.com/file/d/1VxXCe0kSewsT0yMdGmxjnBrV5gpQ5FUx/view?usp=sharing"
+    },
+    {
+      id: 12,
+      title: "मानसिक तनाव",
+      author: "Mr. Ajay Kumar Raja",
+      type: "Research Paper",
+      year: "2022",
+      description: "Comprehensive research on blockchain implementation in financial services, exploring benefits, challenges, and future prospects.",
+      link: "https://drive.google.com/file/d/1sUiZ8z6MlJeY8ajOuJkTVUX1JunWhqhi/view?usp=sharing"
+    }
+    
+    // Add more publications here following the same structure
+    // To add a new publication:
+    // 1. For Google Drive PDFs: Share the file publicly and use the sharing link
+    // 2. For local PDFs: Place your PDF file in /public/pdfs/research/ or /public/pdfs/books/
+    // 3. Add a new object to this array following the same structure
+  ]);
+
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminPassword, setAdminPassword] = useState("");
   const [showAdminLogin, setShowAdminLogin] = useState(false);
-  const [showUploadForm, setShowUploadForm] = useState(false);
-  const [formData, setFormData] = useState({
-    title: "",
-    author: "Prof. Ajay Kumar Raja",
-    type: "Book",
-    year: new Date().getFullYear().toString(),
-    description: "",
-    link: "",
-    pdf: null
-  });
-
-  // Fetch publications from backend
-  const fetchItems = async () => {
-    try {
-      const res = await fetch("http://localhost:5000/publications");
-      const data = await res.json();
-      setItems(data);
-    } catch (err) {
-      setItems([]);
-    }
-  };
-
-  useEffect(() => {
-    fetchItems();
-  }, []);
 
   const books = items.filter(item => item.type === "Book");
   const papers = items.filter(item => item.type === "Research Paper");
@@ -46,58 +154,6 @@ function Library() {
 
   const handleLogout = () => {
     setIsAdmin(false);
-    setShowUploadForm(false);
-  };
-
-  const handleFormSubmit = async () => {
-    if (!formData.title || !formData.author || !formData.description) {
-      alert("Please fill in all required fields!");
-      return;
-    }
-    const data = new FormData();
-    data.append("title", formData.title);
-    data.append("author", formData.author);
-    data.append("type", formData.type);
-    data.append("year", formData.year);
-    data.append("description", formData.description);
-    data.append("link", formData.link);
-    if (formData.pdf) {
-      data.append("pdf", formData.pdf);
-    }
-    try {
-      const response = await fetch("http://localhost:5000/publications", {
-        method: "POST",
-        body: data
-      });
-      if (!response.ok) throw new Error("Upload failed");
-      await response.json();
-      setFormData({
-        title: "",
-        author: "Prof. Ajay Kumar Raja",
-        type: "Book",
-        year: new Date().getFullYear().toString(),
-        description: "",
-        link: "",
-        pdf: null
-      });
-      setShowUploadForm(false);
-      alert("Publication added successfully!");
-      fetchItems();
-    } catch (err) {
-      alert("Publication upload failed!");
-    }
-  };
-
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this publication?")) {
-      try {
-        const response = await fetch(`http://localhost:5000/publications/${id}`, { method: 'DELETE' });
-        if (!response.ok) throw new Error('Delete failed');
-        fetchItems();
-      } catch (err) {
-        alert("Delete failed!");
-      }
-    }
   };
 
   return (
@@ -127,36 +183,20 @@ function Library() {
             🔐 Admin Login
           </button>
         ) : (
-          <>
-            <button
-              onClick={() => setShowUploadForm(true)}
-              style={{
-                padding: "10px 15px",
-                backgroundColor: "#28a745",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-                fontSize: "14px"
-              }}
-            >
-              ➕ Add Publication
-            </button>
-            <button
-              onClick={handleLogout}
-              style={{
-                padding: "10px 15px",
-                backgroundColor: "#dc3545",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-                fontSize: "14px"
-              }}
-            >
-              🚪 Logout
-            </button>
-          </>
+          <button
+            onClick={handleLogout}
+            style={{
+              padding: "10px 15px",
+              backgroundColor: "#dc3545",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+              fontSize: "14px"
+            }}
+          >
+            🚪 Logout
+          </button>
         )}
       </div>
 
@@ -181,6 +221,9 @@ function Library() {
             minWidth: "300px"
           }}>
             <h3 style={{ margin: "0 0 20px", color: "#003366" }}>Admin Login</h3>
+            <p style={{ margin: "0 0 15px", color: "#666", fontSize: "14px" }}>
+              Note: In this version, you need to manually add PDFs to the public/pdfs folder and update the component.
+            </p>
             <input
               type="password"
               placeholder="Enter admin password"
@@ -228,226 +271,83 @@ function Library() {
         </div>
       )}
 
-      {/* Upload Form Modal */}
-      {showUploadForm && (
-        <div style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          backgroundColor: "rgba(0,0,0,0.5)",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          zIndex: 2000,
-          overflow: "auto"
-        }}>
-          <div style={{
-            backgroundColor: "white",
-            padding: "30px",
-            borderRadius: "10px",
-            minWidth: "500px",
-            maxHeight: "80vh",
-            overflow: "auto",
-            margin: "20px"
-          }}>
-            <h3 style={{ margin: "0 0 20px", color: "#003366" }}>Add New Publication</h3>
-            <div>
-              <div style={{ marginBottom: "15px" }}>
-                <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>Title *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.title}
-                  onChange={(e) => setFormData({...formData, title: e.target.value})}
-                  style={{
-                    width: "100%",
-                    padding: "10px",
-                    border: "1px solid #ddd",
-                    borderRadius: "5px",
-                    fontSize: "14px"
-                  }}
-                />
-              </div>
-
-              <div style={{ marginBottom: "15px" }}>
-                <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>Author *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.author}
-                  onChange={(e) => setFormData({...formData, author: e.target.value})}
-                  style={{
-                    width: "100%",
-                    padding: "10px",
-                    border: "1px solid #ddd",
-                    borderRadius: "5px",
-                    fontSize: "14px"
-                  }}
-                />
-              </div>
-
-              <div style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
-                <div style={{ flex: 1 }}>
-                  <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>Type *</label>
-                  <select
-                    required
-                    value={formData.type}
-                    onChange={(e) => setFormData({...formData, type: e.target.value})}
-                    style={{
-                      width: "100%",
-                      padding: "10px",
-                      border: "1px solid #ddd",
-                      borderRadius: "5px",
-                      fontSize: "14px"
-                    }}
-                  >
-                    <option value="Book">Book</option>
-                    <option value="Research Paper">Research Paper</option>
-                  </select>
-                </div>
-
-                <div style={{ flex: 1 }}>
-                  <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>Year *</label>
-                  <input
-                    type="number"
-                    required
-                    min="1900"
-                    max="2030"
-                    value={formData.year}
-                    onChange={(e) => setFormData({...formData, year: e.target.value})}
-                    style={{
-                      width: "100%",
-                      padding: "10px",
-                      border: "1px solid #ddd",
-                      borderRadius: "5px",
-                      fontSize: "14px"
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div style={{ marginBottom: "15px" }}>
-                <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>Description *</label>
-                <textarea
-                  required
-                  rows="4"
-                  value={formData.description}
-                  onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  style={{
-                    width: "100%",
-                    padding: "10px",
-                    border: "1px solid #ddd",
-                    borderRadius: "5px",
-                    fontSize: "14px",
-                    resize: "vertical"
-                  }}
-                />
-              </div>
-
-              <div style={{ marginBottom: "20px" }}>
-                <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>Link (optional)</label>
-                <input
-                  type="url"
-                  value={formData.link}
-                  onChange={(e) => setFormData({...formData, link: e.target.value, pdf: null})}
-                  placeholder="https://example.com"
-                  style={{
-                    width: "100%",
-                    padding: "10px",
-                    border: "1px solid #ddd",
-                    borderRadius: "5px",
-                    fontSize: "14px"
-                  }}
-                  disabled={formData.pdf !== null}
-                />
-              </div>
-              <div style={{ marginBottom: "20px" }}>
-                <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>Upload PDF (Book or Research Paper)</label>
-                <input
-                  type="file"
-                  accept="application/pdf"
-                  onChange={e => {
-                    const file = e.target.files[0];
-                    setFormData({
-                      ...formData,
-                      pdf: file || null,
-                      link: file ? "" : formData.link
-                    });
-                  }}
-                  style={{
-                    width: "100%",
-                    padding: "10px",
-                    border: "1px solid #ddd",
-                    borderRadius: "5px",
-                    fontSize: "14px"
-                  }}
-                />
-                {formData.pdf && (
-                  <div style={{ marginTop: "5px", color: "#28a745" }}>
-                    Selected: {formData.pdf.name}
-                  </div>
-                )}
-              </div>
-
-              <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
-                <button
-                  type="button"
-                  onClick={() => setShowUploadForm(false)}
-                  style={{
-                    padding: "10px 20px",
-                    backgroundColor: "#6c757d",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "5px",
-                    cursor: "pointer"
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleFormSubmit}
-                  style={{
-                    padding: "10px 20px",
-                    backgroundColor: "#28a745",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "5px",
-                    cursor: "pointer"
-                  }}
-                >
-                  Add Publication
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Main Library Content */}
       <section id="library" style={{ padding: "50px 20px", background: "#f0f4f8" }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
           <h2 style={{ 
-            fontSize: "36px", 
+            fontSize: "42px", 
             textAlign: "center", 
             color: "#003366", 
-            marginBottom: "20px" 
+            marginBottom: "25px",
+            fontWeight: "700",
+            textShadow: "2px 2px 4px rgba(0,51,102,0.1)"
           }}>
-            Prof. Ajay Kumar Raja - Publications Library
+            Mr. Ajay Kumar Raja - Publications Library
           </h2>
           
           <p style={{ 
             textAlign: "center", 
             color: "#666", 
-            fontSize: "18px", 
-            marginBottom: "40px",
-            maxWidth: "600px",
-            margin: "0 auto 40px auto"
+            fontSize: "20px", 
+            marginBottom: "30px",
+            maxWidth: "700px",
+            margin: "0 auto 30px auto",
+            lineHeight: "1.6"
           }}>
             Comprehensive collection of published books and research papers contributing to Commerce and Management education
           </p>
+
+          {/* Statistics */}
+          <div style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: "40px",
+            marginBottom: "50px",
+            flexWrap: "wrap"
+          }}>
+            <div style={{
+              textAlign: "center",
+              padding: "20px",
+              backgroundColor: "#003366",
+              color: "white",
+              borderRadius: "12px",
+              minWidth: "150px",
+              boxShadow: "0 4px 12px rgba(0,51,102,0.2)"
+            }}>
+              <div style={{ fontSize: "32px", fontWeight: "bold", marginBottom: "5px" }}>
+                {books.length}
+              </div>
+              <div style={{ fontSize: "16px", opacity: "0.9" }}>Published Books</div>
+            </div>
+            <div style={{
+              textAlign: "center",
+              padding: "20px",
+              backgroundColor: "#28a745",
+              color: "white",
+              borderRadius: "12px",
+              minWidth: "150px",
+              boxShadow: "0 4px 12px rgba(40,167,69,0.2)"
+            }}>
+              <div style={{ fontSize: "32px", fontWeight: "bold", marginBottom: "5px" }}>
+                {papers.length}
+              </div>
+              <div style={{ fontSize: "16px", opacity: "0.9" }}>Research Papers</div>
+            </div>
+            <div style={{
+              textAlign: "center",
+              padding: "20px",
+              backgroundColor: "#6c757d",
+              color: "white",
+              borderRadius: "12px",
+              minWidth: "150px",
+              boxShadow: "0 4px 12px rgba(108,117,125,0.2)"
+            }}>
+              <div style={{ fontSize: "32px", fontWeight: "bold", marginBottom: "5px" }}>
+                {items.length}
+              </div>
+              <div style={{ fontSize: "16px", opacity: "0.9" }}>Total Publications</div>
+            </div>
+          </div>
 
           {/* Books Section */}
           <div style={{ marginBottom: "50px" }}>
@@ -462,76 +362,88 @@ function Library() {
             </h3>
             <div style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-              gap: "25px"
+              gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+              gap: "30px"
             }}>
-              {books.map((item) => (
+              {books.map((item, index) => (
                 <div key={item.id} style={{
-                  background: "#fff",
-                  padding: "25px",
-                  borderRadius: "12px",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                  transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                  border: "1px solid #e0e6ed",
-                  position: "relative"
+                  background: "linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)",
+                  padding: "30px",
+                  borderRadius: "15px",
+                  boxShadow: "0 6px 20px rgba(0,51,102,0.1)",
+                  transition: "all 0.3s ease",
+                  border: "1px solid #e8ecf4",
+                  position: "relative",
+                  overflow: "hidden"
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-5px)";
-                  e.currentTarget.style.boxShadow = "0 8px 25px rgba(0,0,0,0.15)";
+                  e.currentTarget.style.transform = "translateY(-8px)";
+                  e.currentTarget.style.boxShadow = "0 12px 30px rgba(0,51,102,0.15)";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+                  e.currentTarget.style.boxShadow = "0 6px 20px rgba(0,51,102,0.1)";
                 }}>
-                  {isAdmin && (
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      style={{
-                        position: "absolute",
-                        top: "10px",
-                        right: "10px",
-                        background: "#dc3545",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "50%",
-                        width: "30px",
-                        height: "30px",
-                        cursor: "pointer",
-                        fontSize: "14px"
-                      }}
-                      title="Delete"
-                    >
-                      ×
-                    </button>
-                  )}
                   
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: "15px", marginBottom: "15px" }}>
+                  {/* Book Number Badge */}
+                  <div style={{
+                    position: "absolute",
+                    top: "15px",
+                    right: "15px",
+                    backgroundColor: "#003366",
+                    color: "white",
+                    borderRadius: "50%",
+                    width: "30px",
+                    height: "30px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "12px",
+                    fontWeight: "bold"
+                  }}>
+                    {index + 1}
+                  </div>
+
+                  {/* Book Icon */}
+                  <div style={{
+                    fontSize: "48px",
+                    textAlign: "center",
+                    marginBottom: "20px",
+                    opacity: "0.8"
+                  }}>
+                    📚
+                  </div>
+                  
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: "15px", marginBottom: "20px" }}>
                     <div style={{ 
                       backgroundColor: "#003366", 
                       color: "white", 
-                      padding: "8px 12px", 
-                      borderRadius: "6px", 
-                      fontSize: "12px", 
+                      padding: "10px 15px", 
+                      borderRadius: "8px", 
+                      fontSize: "14px", 
                       fontWeight: "bold",
-                      minWidth: "50px",
-                      textAlign: "center"
+                      minWidth: "60px",
+                      textAlign: "center",
+                      boxShadow: "0 2px 8px rgba(0,51,102,0.3)"
                     }}>
                       {item.year}
                     </div>
                     <div style={{ flex: 1 }}>
                       <h4 style={{ 
-                        margin: "0 0 8px", 
+                        margin: "0 0 10px", 
                         color: "#003366", 
-                        fontSize: "18px",
-                        lineHeight: "1.4"
+                        fontSize: "20px",
+                        lineHeight: "1.3",
+                        fontWeight: "600"
                       }}>
                         {item.title}
                       </h4>
                       <p style={{ 
                         margin: "0", 
                         color: "#666", 
-                        fontSize: "14px",
-                        fontStyle: "italic"
+                        fontSize: "15px",
+                        fontStyle: "italic",
+                        fontWeight: "500"
                       }}>
                         by {item.author}
                       </p>
@@ -540,37 +452,45 @@ function Library() {
                   
                   <p style={{ 
                     color: "#555", 
-                    lineHeight: "1.6", 
-                    marginBottom: "20px",
-                    fontSize: "14px"
+                    lineHeight: "1.7", 
+                    marginBottom: "25px",
+                    fontSize: "15px",
+                    textAlign: "justify"
                   }}>
                     {item.description}
                   </p>
                   
                   {item.link && item.link !== "#" && (
                     <a
-                      href={item.link.startsWith('/uploads/') ? `http://localhost:5000${item.link}` : item.link}
+                      href={convertGoogleDriveLink(item.link)}
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{
-                        display: "inline-block",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "8px",
                         color: "#fff",
-                        backgroundColor: item.type === "Book" ? "#003366" : "#28a745",
-                        padding: "10px 20px",
-                        borderRadius: "6px",
+                        background: "linear-gradient(135deg, #003366 0%, #004080 100%)",
+                        padding: "12px 24px",
+                        borderRadius: "8px",
                         textDecoration: "none",
-                        fontSize: "14px",
-                        fontWeight: "500",
-                        transition: "background-color 0.3s ease"
+                        fontSize: "15px",
+                        fontWeight: "600",
+                        transition: "all 0.3s ease",
+                        boxShadow: "0 4px 12px rgba(0,51,102,0.3)",
+                        width: "100%",
+                        justifyContent: "center"
                       }}
                       onMouseEnter={(e) => {
-                        e.target.style.backgroundColor = item.type === "Book" ? "#004080" : "#218838";
+                        e.target.style.background = "linear-gradient(135deg, #004080 0%, #0056b3 100%)";
+                        e.target.style.transform = "scale(1.02)";
                       }}
                       onMouseLeave={(e) => {
-                        e.target.style.backgroundColor = item.type === "Book" ? "#003366" : "#28a745";
+                        e.target.style.background = "linear-gradient(135deg, #003366 0%, #004080 100%)";
+                        e.target.style.transform = "scale(1)";
                       }}
                     >
-                      {item.link.endsWith('.pdf') || item.link.startsWith('/uploads/') ? (item.type === "Book" ? "📖 View PDF" : "📄 Read PDF") : (item.type === "Book" ? "📖 View Book Details" : "📄 Read Paper")}
+                      📖 View Book PDF
                     </a>
                   )}
                 </div>
@@ -591,77 +511,89 @@ function Library() {
             </h3>
             <div style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))",
-              gap: "25px"
+              gridTemplateColumns: "repeat(auto-fit, minmax(380px, 1fr))",
+              gap: "30px"
             }}>
-              {papers.map((item) => (
+              {papers.map((item, index) => (
                 <div key={item.id} style={{
-                  background: "#fff",
-                  padding: "25px",
-                  borderRadius: "12px",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                  transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                  border: "1px solid #e0e6ed",
-                  borderLeft: "4px solid #28a745",
-                  position: "relative"
+                  background: "linear-gradient(135deg, #ffffff 0%, #f0f8f5 100%)",
+                  padding: "30px",
+                  borderRadius: "15px",
+                  boxShadow: "0 6px 20px rgba(40,167,69,0.1)",
+                  transition: "all 0.3s ease",
+                  border: "1px solid #e8f5e8",
+                  borderLeft: "5px solid #28a745",
+                  position: "relative",
+                  overflow: "hidden"
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-5px)";
-                  e.currentTarget.style.boxShadow = "0 8px 25px rgba(0,0,0,0.15)";
+                  e.currentTarget.style.transform = "translateY(-8px)";
+                  e.currentTarget.style.boxShadow = "0 12px 30px rgba(40,167,69,0.15)";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+                  e.currentTarget.style.boxShadow = "0 6px 20px rgba(40,167,69,0.1)";
                 }}>
-                  {isAdmin && (
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      style={{
-                        position: "absolute",
-                        top: "10px",
-                        right: "10px",
-                        background: "#dc3545",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "50%",
-                        width: "30px",
-                        height: "30px",
-                        cursor: "pointer",
-                        fontSize: "14px"
-                      }}
-                      title="Delete"
-                    >
-                      ×
-                    </button>
-                  )}
                   
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: "15px", marginBottom: "15px" }}>
+                  {/* Research Paper Number Badge */}
+                  <div style={{
+                    position: "absolute",
+                    top: "15px",
+                    right: "15px",
+                    backgroundColor: "#28a745",
+                    color: "white",
+                    borderRadius: "50%",
+                    width: "30px",
+                    height: "30px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "12px",
+                    fontWeight: "bold"
+                  }}>
+                    {index + 1}
+                  </div>
+
+                  {/* Research Icon */}
+                  <div style={{
+                    fontSize: "48px",
+                    textAlign: "center",
+                    marginBottom: "20px",
+                    opacity: "0.8"
+                  }}>
+                    🔬
+                  </div>
+                  
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: "15px", marginBottom: "20px" }}>
                     <div style={{ 
                       backgroundColor: "#28a745", 
                       color: "white", 
-                      padding: "8px 12px", 
-                      borderRadius: "6px", 
-                      fontSize: "12px", 
+                      padding: "10px 15px", 
+                      borderRadius: "8px", 
+                      fontSize: "14px", 
                       fontWeight: "bold",
-                      minWidth: "50px",
-                      textAlign: "center"
+                      minWidth: "60px",
+                      textAlign: "center",
+                      boxShadow: "0 2px 8px rgba(40,167,69,0.3)"
                     }}>
                       {item.year}
                     </div>
                     <div style={{ flex: 1 }}>
                       <h4 style={{ 
-                        margin: "0 0 8px", 
+                        margin: "0 0 10px", 
                         color: "#003366", 
-                        fontSize: "17px",
-                        lineHeight: "1.4"
+                        fontSize: "19px",
+                        lineHeight: "1.3",
+                        fontWeight: "600"
                       }}>
                         {item.title}
                       </h4>
                       <p style={{ 
                         margin: "0", 
                         color: "#666", 
-                        fontSize: "14px",
-                        fontStyle: "italic"
+                        fontSize: "15px",
+                        fontStyle: "italic",
+                        fontWeight: "500"
                       }}>
                         by {item.author}
                       </p>
@@ -670,32 +602,40 @@ function Library() {
                   
                   <p style={{ 
                     color: "#555", 
-                    lineHeight: "1.6", 
-                    marginBottom: "20px",
-                    fontSize: "14px"
+                    lineHeight: "1.7", 
+                    marginBottom: "25px",
+                    fontSize: "15px",
+                    textAlign: "justify"
                   }}>
                     {item.description}
                   </p>
                   
                   {item.link && item.link !== "#" && (
-                    <a href={item.link} target="_blank" rel="noopener noreferrer" style={{
-                      display: "inline-block",
+                    <a href={convertGoogleDriveLink(item.link)} target="_blank" rel="noopener noreferrer" style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "8px",
                       color: "#fff",
-                      backgroundColor: "#28a745",
-                      padding: "10px 20px",
-                      borderRadius: "6px",
+                      background: "linear-gradient(135deg, #28a745 0%, #34ce57 100%)",
+                      padding: "12px 24px",
+                      borderRadius: "8px",
                       textDecoration: "none",
-                      fontSize: "14px",
-                      fontWeight: "500",
-                      transition: "background-color 0.3s ease"
+                      fontSize: "15px",
+                      fontWeight: "600",
+                      transition: "all 0.3s ease",
+                      boxShadow: "0 4px 12px rgba(40,167,69,0.3)",
+                      width: "100%",
+                      justifyContent: "center"
                     }}
                     onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = "#218838";
+                      e.target.style.background = "linear-gradient(135deg, #218838 0%, #28a745 100%)";
+                      e.target.style.transform = "scale(1.02)";
                     }}
                     onMouseLeave={(e) => {
-                      e.target.style.backgroundColor = "#28a745";
+                      e.target.style.background = "linear-gradient(135deg, #28a745 0%, #34ce57 100%)";
+                      e.target.style.transform = "scale(1)";
                     }}>
-                      📄 Read Paper
+                      📄 Read Research Paper
                     </a>
                   )}
                 </div>
